@@ -1,0 +1,7 @@
+fastapi
+uvicorn[standard]
+paho-mqtt>=2.1.0
+psycopg2-binary
+jinja2
+python-multipart
+bcrypt

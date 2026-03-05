@@ -1,0 +1,72 @@
+services:
+  lucid-db:
+    build: ./services/db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: lucid
+      POSTGRES_USER: lucid
+      POSTGRES_PASSWORD: lucid_secret
+    volumes:
+      - lucid_db_data:/var/lib/postgresql/data
+
+  lucid-auth:
+    build: ./services/auth
+    restart: unless-stopped
+    ports:
+      - "4000:4000"
+    environment:
+      LUCID_DB_URL: postgresql://lucid:lucid_secret@lucid-db:5432/lucid
+    depends_on:
+      - lucid-db
+
+  emqx:
+    image: emqx/emqx:5.8.8
+    restart: unless-stopped
+    env_file: ./services/emqx/.env
+    environment:
+      EMQX_ALLOW_ANONYMOUS: "false"
+
+      # HTTP authentication
+      EMQX_AUTHENTICATION__1__MECHANISM: password_based
+      EMQX_AUTHENTICATION__1__BACKEND: http
+      EMQX_AUTHENTICATION__1__METHOD: post
+      EMQX_AUTHENTICATION__1__URL: http://lucid-auth:4000/authn
+      EMQX_AUTHENTICATION__1__HEADERS__CONTENT_TYPE: application/json
+      EMQX_AUTHENTICATION__1__BODY: '{"username":"$${username}","password":"$${password}","clientid":"$${clientid}"}'
+
+      # HTTP authorization
+      EMQX_AUTHORIZATION__NO_MATCH: deny
+      EMQX_AUTHORIZATION__SOURCES__1__TYPE: http
+      EMQX_AUTHORIZATION__SOURCES__1__ENABLE: "true"
+      EMQX_AUTHORIZATION__SOURCES__1__METHOD: post
+      EMQX_AUTHORIZATION__SOURCES__1__URL: http://lucid-auth:4000/authz
+      EMQX_AUTHORIZATION__SOURCES__1__HEADERS__CONTENT_TYPE: application/json
+      EMQX_AUTHORIZATION__SOURCES__1__BODY: '{"username":"$${username}","clientid":"$${clientid}","topic":"$${topic}","action":"$${action}"}'
+    ports:
+      - "1883:1883"
+      - "8083:8083"
+      - "8084:8084"
+      - "8883:8883"
+      - "18083:18083"
+    depends_on:
+      - lucid-auth
+
+  lucid-cc:
+    build: .
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    environment:
+      LUCID_MQTT_HOST: emqx
+      LUCID_MQTT_PORT: "1883"
+      LUCID_MQTT_USERNAME: central-command
+      LUCID_MQTT_PASSWORD: "wNKs5oMf0iCd_U6RQVD7YTUs7MHxAmom"
+      LUCID_DB_URL: postgresql://lucid:lucid_secret@lucid-db:5432/lucid
+    depends_on:
+      - emqx
+      - lucid-db
+      - lucid-auth
+
+volumes:
+  lucid_db_data:
+    name: lucid-db-data
