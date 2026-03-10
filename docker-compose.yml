@@ -62,11 +62,35 @@ services:
       LUCID_MQTT_USERNAME: central-command
       LUCID_MQTT_PASSWORD: "wNKs5oMf0iCd_U6RQVD7YTUs7MHxAmom"
       LUCID_DB_URL: postgresql://lucid:lucid_secret@lucid-db:5432/lucid
+      LUCID_AI_URL: http://localhost:6000
     depends_on:
       - emqx
       - lucid-db
       - lucid-auth
 
+  ollama:
+    image: ollama/ollama:latest
+    restart: unless-stopped
+    volumes:
+      - ollama_data:/root/.ollama
+
+  lucid-ai:
+    build: ./services/ai
+    restart: unless-stopped
+    ports:
+      - "6000:6000"
+    environment:
+      LUCID_CC_URL: http://lucid-cc:5000
+      LUCID_DB_URL: postgresql://lucid:lucid_secret@lucid-db:5432/lucid
+      OLLAMA_BASE_URL: http://ollama:11434
+      LLM_MODEL: llama3.1:8b
+    depends_on:
+      - lucid-cc
+      - lucid-db
+      - ollama
+
 volumes:
   lucid_db_data:
     name: lucid-db-data
+  ollama_data:
+    name: lucid-ollama-data

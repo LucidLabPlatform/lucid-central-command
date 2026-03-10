@@ -1,0 +1,8 @@
+fastapi
+uvicorn[standard]
+psycopg2-binary
+httpx
+langgraph>=0.2.0
+langchain-core>=0.3.0
+langchain-ollama>=0.2.0
+sse-starlette

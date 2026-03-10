@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}LUCID — AI Assistant{% endblock %}
+
+{% block content %}
+<div class="ai-layout">
+  <div class="ai-messages" id="ai-messages">
+    <div class="ai-msg ai-msg-assistant">
+      <span class="ai-msg-label">LUCID AI</span>
+      <div class="ai-msg-body">Hello! Describe what you'd like to do and I'll check the fleet, build a step-by-step workflow plan, and execute it after you approve.<br><br>Examples: <em>"Start the demo run"</em> · <em>"Reset between runs"</em> · <em>"Set the LEDs to a blue glow"</em> · <em>"What's the fleet status?"</em></div>
+    </div>
+  </div>
+
+  <div class="ai-input-row">
+    <textarea class="ai-input" id="ai-input" rows="2"
+      placeholder="Describe the experiment or task..."></textarea>
+    <button class="btn-primary" id="ai-send">Send</button>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>const AI_URL = "{{ ai_url }}";</script>
+<script src="/static/ai.js"></script>
+{% endblock %}

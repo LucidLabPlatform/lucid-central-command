@@ -291,6 +291,49 @@ def init_schema(url: str | None = None) -> None:
             cur.execute("CREATE INDEX IF NOT EXISTS idx_comp_events_request_id ON component_events (request_id)")
             cur.execute("CREATE INDEX IF NOT EXISTS idx_commands_request_id ON commands (request_id)")
 
+            # ── AI workflows
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS ai_conversations (
+                    id         TEXT PRIMARY KEY,
+                    created_ts TEXT NOT NULL,
+                    status     TEXT NOT NULL DEFAULT 'active'
+                )
+            """)
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS ai_messages (
+                    id              BIGSERIAL PRIMARY KEY,
+                    conversation_id TEXT NOT NULL REFERENCES ai_conversations,
+                    role            TEXT NOT NULL,
+                    content         TEXT NOT NULL,
+                    created_ts      TEXT NOT NULL
+                )
+            """)
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS ai_workflows (
+                    id              TEXT PRIMARY KEY,
+                    conversation_id TEXT NOT NULL REFERENCES ai_conversations,
+                    intent          TEXT NOT NULL,
+                    plan            JSONB NOT NULL,
+                    status          TEXT NOT NULL DEFAULT 'pending',
+                    created_ts      TEXT NOT NULL,
+                    completed_ts    TEXT
+                )
+            """)
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS ai_workflow_steps (
+                    id           BIGSERIAL PRIMARY KEY,
+                    workflow_id  TEXT NOT NULL REFERENCES ai_workflows,
+                    step_number  INTEGER NOT NULL,
+                    title        TEXT NOT NULL,
+                    action_type  TEXT NOT NULL,
+                    action       JSONB NOT NULL,
+                    status       TEXT NOT NULL DEFAULT 'pending',
+                    result       TEXT,
+                    started_ts   TEXT,
+                    completed_ts TEXT
+                )
+            """)
+
         conn.commit()
 
 
