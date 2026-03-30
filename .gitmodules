@@ -1,9 +1,9 @@
-[submodule "central-command/lucid-infra"]
-	path = central-command/lucid-infra
-	url = ./central-command/lucid-infra
-[submodule "central-command/lucid-orchestrator"]
-	path = central-command/lucid-orchestrator
-	url = ./central-command/lucid-orchestrator
-[submodule "central-command/lucid-ui"]
-	path = central-command/lucid-ui
-	url = ./central-command/lucid-ui
+[submodule "lucid-infra"]
+	path = lucid-infra
+	url = https://github.com/LucidLabPlatform/lucid-infra.git
+[submodule "lucid-orchestrator"]
+	path = lucid-orchestrator
+	url = https://github.com/LucidLabPlatform/lucid-orchestrator.git
+[submodule "lucid-ui"]
+	path = lucid-ui
+	url = https://github.com/LucidLabPlatform/lucid-ui.git
