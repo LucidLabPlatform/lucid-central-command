@@ -44,7 +44,7 @@ The canonical env template for the full Central Command stack is:
 In practice:
 - use the shared values there as the source of truth
 - copy the values you need into [`lucid-infra/.env`](/Users/farahorfaly/Desktop/LUCID/lucid-central-command/lucid-infra/.env) when running the compose stack
-- use the same variables directly when running `lucid-orchestrator`, `lucid-ui`, `lucid-automation`, or `lucid-ai` standalone
+- use the same variables directly when running `lucid-orchestrator`, `lucid-ui`, or `lucid-ai` standalone
 
 ## Compose
 
@@ -65,3 +65,6 @@ This root compose file builds from:
 - `./lucid-infra/lucid-emqx`
 - `./lucid-orchestrator`
 - `./lucid-ui`
+
+Experiments now live inside `lucid-orchestrator`; there is no separate runtime
+`lucid-automation` service in the main stack.

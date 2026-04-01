@@ -135,7 +135,7 @@ services:
       SESSION_SECRET: ${SESSION_SECRET}
       LDAP_URL: ${LDAP_URL:-}
       LDAP_BIND_DN_TEMPLATE: ${LDAP_BIND_DN_TEMPLATE:-}
-      LUCID_UI_ENABLE_EXPERIMENTS: "false"
+      LUCID_UI_ENABLE_EXPERIMENTS: "true"
       LUCID_UI_ENABLE_AI: "false"
     depends_on:
       lucid-orchestrator:
