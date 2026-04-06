@@ -7,3 +7,6 @@
 [submodule "lucid-ui"]
 	path = lucid-ui
 	url = https://github.com/LucidLabPlatform/lucid-ui.git
+[submodule "lucid-ai"]
+	path = lucid-ai
+	url = https://github.com/LucidLabPlatform/lucid-ai.git
