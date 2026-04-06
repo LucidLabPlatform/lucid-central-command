@@ -131,18 +131,56 @@ services:
       - "5000:5000"
     environment:
       ORCHESTRATOR_URL: http://lucid-orchestrator:5000
+      AI_URL: ${AI_URL:-http://lucid-ai:5000}
       DASHBOARD_PASSWORD: ${DASHBOARD_PASSWORD}
       SESSION_SECRET: ${SESSION_SECRET}
       LDAP_URL: ${LDAP_URL:-}
       LDAP_BIND_DN_TEMPLATE: ${LDAP_BIND_DN_TEMPLATE:-}
       LUCID_UI_ENABLE_EXPERIMENTS: "true"
-      LUCID_UI_ENABLE_AI: "false"
+      LUCID_UI_ENABLE_AI: ${LUCID_UI_ENABLE_AI:-true}
     depends_on:
       lucid-orchestrator:
         condition: service_healthy
+      lucid-ai:
+        condition: service_healthy
+
+  lucid-ai:
+    container_name: lucid-ai
+    build: ./lucid-ai
+    restart: unless-stopped
+    environment:
+      LUCID_DB_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      LUCID_FLEET_CORE_URL: http://lucid-orchestrator:5000
+      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL}
+      OLLAMA_MODEL: ${OLLAMA_MODEL}
+      AI_MAX_ITERATIONS: ${AI_MAX_ITERATIONS}
+      AI_CHAT_TIMEOUT: ${AI_CHAT_TIMEOUT}
+    depends_on:
+      db:
+        condition: service_healthy
+      lucid-orchestrator:
+        condition: service_healthy
+      ollama:
+        condition: service_started
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:5000/health', timeout=3).read()\""]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  ollama:
+    container_name: ollama
+    image: ollama/ollama:latest
+    restart: unless-stopped
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
 
 volumes:
   lucid_db_data:
     name: lucid-db-data
   emqx_data:
     name: emqx-data
+  ollama_data:

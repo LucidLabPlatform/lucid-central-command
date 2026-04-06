@@ -9,6 +9,7 @@ Parent repository for the LUCID Central Command stack.
 ```text
 lucid-central-command/
 ├── lucid-infra
+├── lucid-ai
 ├── lucid-orchestrator
 └── lucid-ui
 ```
@@ -16,6 +17,7 @@ lucid-central-command/
 ## Repos
 
 - `lucid-infra`: broker, database, auth service, compose, and provisioning
+- `lucid-ai`: AI supervisor service and conversation persistence
 - `lucid-orchestrator`: backend API and WebSocket control plane
 - `lucid-ui`: operator dashboard
 
@@ -63,8 +65,19 @@ This root compose file builds from:
 - `./lucid-infra/lucid-db`
 - `./lucid-infra/lucid-auth`
 - `./lucid-infra/lucid-emqx`
+- `./lucid-ai`
 - `./lucid-orchestrator`
 - `./lucid-ui`
 
 Experiments now live inside `lucid-orchestrator`; there is no separate runtime
 `lucid-automation` service in the main stack.
+
+For AI, the root stack now also includes:
+- `lucid-ai` for chat, fleet inspection, and experiment control tools
+- `ollama` as the local model backend
+
+After the stack is up, pull the configured model once:
+
+```bash
+docker compose exec ollama ollama pull ${OLLAMA_MODEL}
+```
