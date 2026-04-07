@@ -12,12 +12,10 @@ RUN python -c "from faster_whisper import WhisperModel; WhisperModel('base.en', 
 
 # Pre-download Piper voice at build time
 RUN mkdir -p /models/piper && \
-    python -c "\
-import urllib.request, os; \
-base = 'https://huggingface.co/rhasspy/piper-voices/resolve/main/en/en_US/lessac/medium/'; \
-for f in ['en_US-lessac-medium.onnx', 'en_US-lessac-medium.onnx.json']: \
-    urllib.request.urlretrieve(base + f, f'/models/piper/{f}'); \
-    print(f'Downloaded {f}')"
+    python -c "import urllib.request; \
+urllib.request.urlretrieve('https://huggingface.co/rhasspy/piper-voices/resolve/main/en/en_US/lessac/medium/en_US-lessac-medium.onnx', '/models/piper/en_US-lessac-medium.onnx'); \
+urllib.request.urlretrieve('https://huggingface.co/rhasspy/piper-voices/resolve/main/en/en_US/lessac/medium/en_US-lessac-medium.onnx.json', '/models/piper/en_US-lessac-medium.onnx.json'); \
+print('Piper models downloaded')"
 
 COPY app/ ./app/
 EXPOSE 5100
