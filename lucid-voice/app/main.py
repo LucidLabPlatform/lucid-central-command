@@ -35,6 +35,7 @@ app.include_router(tts_router)
 
 
 @app.get("/health")
+@app.get("/api/voice/health")
 def health():
     return {
         "ok": True,
