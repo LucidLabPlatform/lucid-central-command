@@ -214,88 +214,11 @@ services:
               count: all
               capabilities: [gpu]
 
-  grafana:
-    container_name: lucid-grafana
-    image: grafana/grafana:11.6.0
-    restart: unless-stopped
-    ports:
-      - "3000:3000"
-    environment:
-      GF_SECURITY_ADMIN_USER: admin
-      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-lucid-grafana}
-      GF_USERS_ALLOW_SIGN_UP: "false"
-      GF_PATHS_PROVISIONING: /etc/grafana/provisioning
-      GF_DATABASE_TYPE: sqlite3
-      # Postgres datasource credentials (substituted in provisioning YAML)
-      GF_DATASOURCE_PG_USER: ${POSTGRES_USER}
-      GF_DATASOURCE_PG_PASSWORD: ${POSTGRES_PASSWORD}
-      GF_DATASOURCE_PG_DATABASE: ${POSTGRES_DB}
-    volumes:
-      - grafana_data:/var/lib/grafana
-      - ./lucid-infra/lucid-grafana/provisioning:/etc/grafana/provisioning:ro
-    depends_on:
-      db:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://localhost:3000/api/health || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 15s
-
-  lucid-ha-bridge:
-    container_name: lucid-ha-bridge
-    build: ./lucid-infra/lucid-ha-bridge
-    restart: unless-stopped
-    environment:
-      LUCID_MQTT_HOST: emqx
-      LUCID_MQTT_PORT: "1883"
-      LUCID_MQTT_USERNAME: ${HA_BRIDGE_MQTT_USERNAME:-ha-bridge}
-      LUCID_MQTT_PASSWORD: ${HA_BRIDGE_MQTT_PASSWORD:-changeme}
-      LOG_LEVEL: ${HA_BRIDGE_LOG_LEVEL:-INFO}
-    depends_on:
-      emqx:
-        condition: service_started
-    healthcheck:
-      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:9000/health', timeout=5)\""]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 10s
-
-  homeassistant:
-    container_name: lucid-homeassistant
-    image: ghcr.io/home-assistant/home-assistant:stable
-    restart: unless-stopped
-    ports:
-      - "8123:8123"
-    volumes:
-      - homeassistant_config:/config
-      - ./lucid-infra/lucid-homeassistant/configuration.yaml:/config/configuration.yaml:ro
-      - ./lucid-infra/lucid-homeassistant/secrets.yaml:/config/secrets.yaml:ro
-    environment:
-      TZ: UTC
-    depends_on:
-      emqx:
-        condition: service_started
-      lucid-ha-bridge:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://localhost:8123/ || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 60s
-
 volumes:
   lucid_db_data:
     name: lucid-db-data
   emqx_data:
     name: emqx-data
-  grafana_data:
-    name: lucid-grafana-data
-  homeassistant_config:
-    name: lucid-homeassistant-config
   ollama_data:
   voice_models:
     name: lucid-voice-models
