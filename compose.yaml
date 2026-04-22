@@ -69,6 +69,7 @@ services:
       EMQX_AUTHORIZATION__SOURCES__1__ENABLE: "true"
     ports:
       - "1883:1883"
+      - "8083:8083"
       - "18083:18083"
     volumes:
       - emqx_data:/opt/emqx/data
