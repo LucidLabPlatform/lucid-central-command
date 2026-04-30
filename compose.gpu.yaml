@@ -13,9 +13,14 @@ services:
       LUCID_DB_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
       LUCID_FLEET_CORE_URL: http://lucid-orchestrator:5000
       OLLAMA_BASE_URL: ${OLLAMA_BASE_URL}
-      OLLAMA_MODEL: ${OLLAMA_MODEL}
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-qwen3:14b}
       AI_MAX_ITERATIONS: ${AI_MAX_ITERATIONS}
       AI_CHAT_TIMEOUT: ${AI_CHAT_TIMEOUT}
+      LUCID_AI_TOOLS_PROFILE: ${LUCID_AI_TOOLS_PROFILE:-v1}
+      LUCID_AI_MAX_ITERATIONS: ${LUCID_AI_MAX_ITERATIONS:-6}
+      LUCID_AI_TOPICS_PATH: /app/topics.txt
+    volumes:
+      - ../topics.txt:/app/topics.txt:ro
     depends_on:
       db:
         condition: service_healthy
@@ -34,6 +39,8 @@ services:
     container_name: lucid-voice
     build: ./lucid-voice
     restart: unless-stopped
+    ports:
+      - "5100:5100"
     environment:
       WHISPER_MODEL: ${WHISPER_MODEL:-base.en}
       WHISPER_DEVICE: ${WHISPER_DEVICE:-cpu}
