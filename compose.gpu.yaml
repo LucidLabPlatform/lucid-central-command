@@ -19,8 +19,10 @@ services:
       LUCID_AI_TOOLS_PROFILE: ${LUCID_AI_TOOLS_PROFILE:-v1}
       LUCID_AI_MAX_ITERATIONS: ${LUCID_AI_MAX_ITERATIONS:-6}
       LUCID_AI_TOPICS_PATH: /app/topics.txt
+      LUCID_AI_PROMPTS_FILE: /data/prompts.json
     volumes:
       - ../topics.txt:/app/topics.txt:ro
+      - ai_prompts:/data
     depends_on:
       db:
         condition: service_healthy
@@ -45,8 +47,9 @@ services:
       WHISPER_MODEL: ${WHISPER_MODEL:-base.en}
       WHISPER_DEVICE: ${WHISPER_DEVICE:-cpu}
       WHISPER_COMPUTE_TYPE: ${WHISPER_COMPUTE_TYPE:-int8}
-      PIPER_MODEL: ${PIPER_MODEL:-en_US-lessac-medium}
+      PIPER_MODEL: ${PIPER_MODEL:-en_US-amy-medium}
       PIPER_MODEL_DIR: /models/piper
+      PIPER_LENGTH_SCALE: ${PIPER_LENGTH_SCALE:-1.0}
     volumes:
       - voice_models:/models
     healthcheck:
@@ -88,3 +91,5 @@ volumes:
   ollama_data:
   voice_models:
     name: lucid-voice-models
+  ai_prompts:
+    name: lucid-ai-prompts

@@ -1,2 +1,12 @@
 .env
+.env.remote
+.env.local
 lucid-automation/
+
+# Local working notes / tooling
+.claude/
+audit/
+docs/superpowers/
+
+# Coverage artifacts
+.coverage
