@@ -52,6 +52,10 @@ services:
       EMQX_DASHBOARD__DEFAULT_USERNAME: ${EMQX_API_USERNAME}
       EMQX_DASHBOARD__DEFAULT_PASSWORD: ${EMQX_API_PASSWORD}
       EMQX_ALLOW_ANONYMOUS: "false"
+      # Voice round-trip from lucid-esp-agent carries base64-encoded WAV in a
+      # single MQTT message; default 1MB cap is too tight.  4MB headroom for
+      # ~30 s prompts + TTS replies.
+      EMQX_MQTT__MAX_PACKET_SIZE: "4MB"
       EMQX_AUTHENTICATION__1__MECHANISM: password_based
       EMQX_AUTHENTICATION__1__BACKEND: built_in_database
       EMQX_AUTHENTICATION__2__MECHANISM: password_based
