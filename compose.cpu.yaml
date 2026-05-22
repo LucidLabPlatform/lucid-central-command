@@ -1,0 +1,8 @@
+# CPU-only override: clears the Ollama GPU reservation so the stack runs on
+# hosts without NVIDIA drivers. Apply alongside the umbrella:
+#   docker compose -f compose.yaml -f compose.cpu.yaml up -d
+name: lucid-central-command
+
+services:
+  ollama:
+    deploy: !reset null
