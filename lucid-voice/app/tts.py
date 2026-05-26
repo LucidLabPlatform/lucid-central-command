@@ -2,8 +2,10 @@
 
 import asyncio
 import io
+import json
 import logging
 import os
+import time
 import urllib.request
 import wave
 from pathlib import Path
@@ -107,8 +109,19 @@ async def text_to_speech(body: TTSRequest, request: Request):
     if not body.text.strip():
         return Response(status_code=400, content="Empty text")
 
+    request_id = request.headers.get("X-Request-ID", "")
     length_scale = body.length_scale if body.length_scale and body.length_scale > 0 else PIPER_LENGTH_SCALE
+    t0 = time.monotonic()
     audio_bytes = await asyncio.to_thread(_synthesize, engine, body.text, length_scale)
+    elapsed_ms = int((time.monotonic() - t0) * 1000)
+
+    log.info(json.dumps({
+        "event": "voice_stage_done",
+        "stage": "tts",
+        "elapsed_ms": elapsed_ms,
+        "request_id": request_id,
+        "extra": {"text_len": len(body.text), "audio_bytes": len(audio_bytes)},
+    }))
 
     return Response(
         content=audio_bytes,

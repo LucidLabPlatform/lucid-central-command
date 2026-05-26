@@ -1,9 +1,11 @@
 """Speech-to-text endpoint using faster-whisper."""
 
 import asyncio
+import json
 import logging
 import os
 import tempfile
+import time
 
 from fastapi import APIRouter, File, HTTPException, Request, UploadFile
 from faster_whisper import WhisperModel
@@ -30,6 +32,7 @@ def _transcribe(model: WhisperModel, audio_path: str) -> tuple[str, dict]:
 async def speech_to_text(request: Request, audio: UploadFile = File(...)):
     """Transcribe uploaded audio to text."""
     model = request.app.state.stt_model
+    request_id = request.headers.get("X-Request-ID", "")
     audio_bytes = await audio.read()
 
     if len(audio_bytes) < 100:
@@ -38,7 +41,17 @@ async def speech_to_text(request: Request, audio: UploadFile = File(...)):
     with tempfile.NamedTemporaryFile(suffix=".webm", delete=True) as tmp:
         tmp.write(audio_bytes)
         tmp.flush()
+        t0 = time.monotonic()
         text, info = await asyncio.to_thread(_transcribe, model, tmp.name)
+        elapsed_ms = int((time.monotonic() - t0) * 1000)
+
+    log.info(json.dumps({
+        "event": "voice_stage_done",
+        "stage": "stt",
+        "elapsed_ms": elapsed_ms,
+        "request_id": request_id,
+        "extra": {"audio_bytes": len(audio_bytes), "duration_s": info["duration"]},
+    }))
 
     if not text.strip():
         raise HTTPException(400, "No speech detected")
