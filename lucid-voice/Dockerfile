@@ -10,11 +10,13 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Pre-download Whisper model at build time
 RUN python -c "from faster_whisper import WhisperModel; WhisperModel('base.en', device='cpu', compute_type='int8')"
 
-# Pre-download Piper voice at build time
+# Pre-download Piper voice at build time. Voice can be overridden at run time
+# via the PIPER_MODEL env var; the service will fetch a missing voice on
+# startup via app/tts.py::_ensure_voice (adds ~10s to first boot).
 RUN mkdir -p /models/piper && \
     python -c "import urllib.request; \
-urllib.request.urlretrieve('https://huggingface.co/rhasspy/piper-voices/resolve/main/en/en_US/lessac/medium/en_US-lessac-medium.onnx', '/models/piper/en_US-lessac-medium.onnx'); \
-urllib.request.urlretrieve('https://huggingface.co/rhasspy/piper-voices/resolve/main/en/en_US/lessac/medium/en_US-lessac-medium.onnx.json', '/models/piper/en_US-lessac-medium.onnx.json'); \
+urllib.request.urlretrieve('https://huggingface.co/rhasspy/piper-voices/resolve/main/en/en_US/hfc_male/medium/en_US-hfc_male-medium.onnx', '/models/piper/en_US-hfc_male-medium.onnx'); \
+urllib.request.urlretrieve('https://huggingface.co/rhasspy/piper-voices/resolve/main/en/en_US/hfc_male/medium/en_US-hfc_male-medium.onnx.json', '/models/piper/en_US-hfc_male-medium.onnx.json'); \
 print('Piper models downloaded')"
 
 COPY app/ ./app/
