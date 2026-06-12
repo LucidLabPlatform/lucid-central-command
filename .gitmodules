@@ -10,3 +10,6 @@
 [submodule "lucid-ai"]
 	path = lucid-ai
 	url = https://github.com/LucidLabPlatform/lucid-ai.git
+[submodule "lucid-langsam"]
+	path = lucid-langsam
+	url = https://github.com/LucidLabPlatform/lucid-langsam.git
